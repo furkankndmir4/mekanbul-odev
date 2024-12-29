@@ -5,9 +5,8 @@ import React from "react";
 import VenueDataService from "../services/VenueDataService";
 import {useSelector, useDispatch} from "react-redux";
 const Home = () => {
-   //Şimdilik veri statik. Backend bitince Rest API'den gelecek.
-
   const [coordinate, setCoordinate] = React.useState({ "lat":1, "long":1 });
+  const [searchVenue,setSearchVenue] = useState("");
   const dispatch=useDispatch();
   const venues=useSelector((state)=>state.data);
   const isError=useSelector((state)=>state.isError);
@@ -36,6 +35,15 @@ const Home = () => {
     });
   }, [coordinate.lat, coordinate.long]);
 
+  const search = (event) => {
+    setSearchVenue(event.target.value);
+  };
+
+  const filteredVenues = Array.isArray(venues) ? venues.filter(
+    (venue) =>
+      venue.name.toLowerCase().includes(searchVenue.toLowerCase()) || venue.address.toLowerCase().includes(searchVenue.toLowerCase())
+  ) : [];
+
   return (
     <div>
       <Header
@@ -47,8 +55,8 @@ const Home = () => {
         label="Mekan Ara:"
         type="text"
         isFocused
-        onInputChange={() => null}
-        value={" "}
+        onInputChange={search}
+        value={searchVenue}
       />
       <hr />
       <div className="row">
@@ -63,7 +71,7 @@ const Home = () => {
       ) : (
         isSuccess && (
           <div className="row">
-            <VenueList venues={Array.isArray(venues)?venues:[]} />
+            <VenueList venues={filteredVenues} />
           </div>
         )
       )}
